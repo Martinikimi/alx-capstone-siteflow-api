@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Python / Django
 __pycache__/
 *.py[cod]
@@ -247,4 +247,4 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
->>>>>>> f5df2f54a805628945b4d2de9a2d64e11a99ad1d
+
