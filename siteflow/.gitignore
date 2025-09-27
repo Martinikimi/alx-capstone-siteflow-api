@@ -1,0 +1,55 @@
+# -------------------------
+# Python / Django
+# -------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+*.pyo
+
+# Django stuff
+db.sqlite3
+/staticfiles/
+/media/
+
+# -------------------------
+# Environment files
+# -------------------------
+.env
+.env.*
+!.env.example  # optional: keep a template file in Git
+
+# -------------------------
+# Virtual environments
+# -------------------------
+venv/
+env/
+ENV/
+.venv/
+
+# -------------------------
+# Logs
+# -------------------------
+*.log
+
+# -------------------------
+# Distribution / packaging
+# -------------------------
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# -------------------------
+# IDE / Editor
+# -------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# -------------------------
+# OS-specific files
+# -------------------------
+.DS_Store
+Thumbs.db
