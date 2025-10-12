@@ -2,25 +2,31 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from .models import Project,Trade,Issue,Comment, Attachment
 from .serializers import ProjectSerializer, TradeSerializer, IssueSerializer, CommentSerializer, AttachmentSerializer
+from rest_framework.permissions import IsAuthenticated
 
 class ProjectViewSet(viewsets.ModelViewSet):
-    query_set = Project.object.all()
+    queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    permission_classes =[IsAuthenticated]
     
 class TradeViewSet(viewsets.ModelViewSet):
-    query_set = Trade.object.all()
+    queryset = Trade.objects.all()
     serializer_class = TradeSerializer
+    permission_classes =[IsAuthenticated]
     
 class IssueViewSet(viewsets.ModelViewSet):
-    query_set = Issue.object.all()
+    queryset = Issue.objects.all()
     serializer_class = IssueSerializer
+    permission_classes =[IsAuthenticated]
     
 class CommentViewSet(viewsets.ModelViewSet):
-    query_set = Comment.object.all()
-    Serializer_class = CommentSerializer
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
     
 class AttachmentViewSet(viewsets.ModelViewSet):
-    query_set = Attachment.object.all()
-    Serializer_class = AttachmentSerializer
+    queryset = Attachment.objects.all()
+    serializer_class = AttachmentSerializer
+    permission_classes =[IsAuthenticated]
     
     
