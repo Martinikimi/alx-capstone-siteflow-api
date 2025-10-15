@@ -136,6 +136,69 @@ Handle issues for a specific project
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+@api_view(['POST'])
+def assign_issue(request, issue_id):
+    """
+    Assign or reassign an issue to a trade
+    POST /api/issues/15/assign/
+    {
+        "assigned_trade": "ELECTRICAL"
+    }
+    """
+    
+    # STEP 1: Check if issue exists
+    try:
+        issue = Issue.objects.get(id=issue_id)
+    except Issue.DoesNotExist:
+        return Response(
+            {"error": "Issue not found"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    # STEP 2: Get the trade from request
+    assigned_trade = request.data.get('assigned_trade')
+    
+    if not assigned_trade:
+        return Response(
+            {"error": "assigned_trade is required"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # STEP 3: Validate it's a valid trade choice - FIXED LINE!
+    valid_trades = [choice[0] for choice in Issue._meta.get_field('assigned_to').choices]
+    if assigned_trade not in valid_trades:
+        return Response(
+            {"error": f"Invalid trade. Must be one of: {', '.join(valid_trades)}"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # STEP 4: Create audit trail (optional)
+    try:
+        IssueHistory.objects.create(
+            issue=issue,
+            user=request.user,
+            action="assigned_trade_changed",
+            old_value=issue.assigned_to,
+            new_value=assigned_trade
+        )
+    except:
+        pass  # Skip audit if it fails
+    
+    # STEP 5: Save the old assignment and update
+    old_assignment = issue.assigned_to
+    issue.assigned_to = assigned_trade
+    issue.save()
+    
+    # STEP 6: Return success response
+    return Response({
+        "message": f"Issue #{issue_id} assigned to {assigned_trade}",
+        "issue_id": issue_id,
+        "issue_title": issue.issue_title,
+        "old_assignment": old_assignment,
+        "new_assignment": assigned_trade,
+        "project": issue.project.project_name
+    }, status=status.HTTP_200_OK)
+    
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
