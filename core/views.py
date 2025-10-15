@@ -204,9 +204,132 @@ class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated]
     
+@api_view(['GET', 'POST'])
+
+def issue_comments(request, issue_id):
+    """
+    Get or add comments for a specific issue
+    GET /api/issues/15/comments/ - Get all comments for issue 15
+    POST /api/issues/15/comments/ - Add comment to issue 15
+    
+    """
+    
+    # STEP 1: Check if issue exists
+    try:
+        issue = Issue.objects.get(id=issue_id)
+    except Issue.DoesNotExist:
+        return Response(
+            {"error": "Issue not found"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    # STEP 2: Handle GET request (view comments)
+    if request.method == 'GET':
+        # Get all comments for this issue, ordered by newest first
+        comments = Comment.objects.filter(issue=issue).order_by('-timestamp')
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
+    
+    # STEP 3: Handle POST request (add comment)
+    elif request.method == 'POST':
+        # Get the comment content
+        content = request.data.get('content')
+        
+        if not content:
+            return Response(
+                {"error": "Comment content is required"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # STEP 4: Create the comment
+        try:
+            comment = Comment.objects.create(
+                issue=issue,
+                user=request.user,
+                content=content
+            )
+            
+            # STEP 5: Return success
+            return Response({
+                "message": "Comment added successfully",
+                "comment_id": comment.id,
+                "content": content,
+                "user": request.user.username,
+                "timestamp": comment.timestamp,
+                "issue_id": issue_id,
+                "issue_title": issue.issue_title
+            }, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            return Response(
+                {"error": f"Failed to add comment: {str(e)}"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
 class AttachmentViewSet(viewsets.ModelViewSet):
     queryset = Attachment.objects.all()
     serializer_class = AttachmentSerializer
     permission_classes =[IsAuthenticated]
     
+@api_view(['POST'])
+
+def upload_attachment(request, issue_id):
+    """
+    Upload a file attachment to an issue
+    POST /api/issues/15/upload/
+    Form Data:
+    - file: (the actual file - image, PDF, etc.)
+    """
     
+    # STEP 1: Check if issue exists
+    try:
+        issue = Issue.objects.get(id=issue_id)
+    except Issue.DoesNotExist:
+        return Response(
+            {"error": "Issue not found"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    # STEP 2: Check if file was provided
+    if 'file' not in request.FILES:
+        return Response(
+            {"error": "No file provided"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # STEP 3: Get the uploaded file
+    uploaded_file = request.FILES['file']
+    
+    # STEP 4: Validate file size (optional - 10MB limit)
+    if uploaded_file.size > 10 * 1024 * 1024:  # 10MB
+        return Response(
+            {"error": "File too large. Maximum size is 10MB"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # STEP 5: Create the attachment using YOUR model
+    try:
+        attachment = Attachment.objects.create(
+            issue=issue,
+            user=request.user,  # Uses your 'user' field
+            file=uploaded_file  # Uses your 'file' field
+        )
+        
+        # STEP 6: Return success
+        return Response({
+            "message": "File uploaded successfully",
+            "attachment_id": attachment.id,
+            "file_url": attachment.file.url,  # Django automatically creates URL
+            "file_name": uploaded_file.name,
+            "file_size": uploaded_file.size,
+            "uploaded_by": request.user.username,
+            "uploaded_at": attachment.uploaded_at,
+            "issue_id": issue.id,
+            "issue_title": issue.issue_title
+        }, status=status.HTTP_201_CREATED)
+        
+    except Exception as e:
+        return Response(
+            {"error": f"Failed to upload file: {str(e)}"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
