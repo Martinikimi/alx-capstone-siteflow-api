@@ -3,9 +3,6 @@ from rest_framework import viewsets
 from .models import Project,Trade,Issue,Comment, Attachment
 from .serializers import ProjectSerializer, TradeSerializer, IssueSerializer, CommentSerializer, AttachmentSerializer
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -13,22 +10,21 @@ from rest_framework import status
 from django.contrib.auth import get_user_model
 
 
+def dashboard(request):
+    return render(request, 'core/dashboard.html')
+
+User = get_user_model()
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
     # Get the data from the form
     data = request.data
     
-    # Create the user
     user = User.objects.create_user(
-        username=data['username'],
-        email=data['email'],
-        password=data['password']
-    )
-    
-    # Add the role and specialty
-    user.role = data['role']
-    user.specialty = data.get('specialty', 'GENERAL')
+    username=data['username'],
+    email=data['email'],
+    password=data['password'],
+)
     user.save()
     
     return Response({

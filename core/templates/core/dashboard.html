@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Siteflow - Construction Management</title>
+</head>
+<body>
+    <h1>🏗️ Siteflow - Construction Management</h1>
+    
+    <!-- Registration Section -->
+    <div id="registerSection">
+        <h2>Register New User</h2>
+        <input type="text" id="reg_username" placeholder="Username">
+        <input type="email" id="reg_email" placeholder="Email">
+        <input type="password" id="reg_password" placeholder="Password">
+        <select id="reg_role">
+            <option value="PROJECT MANAGER">Project Manager</option>
+            <option value="SITE OFFICER">Site Officer</option>
+            <option value="SUB CONTRACTOR">Sub Contractor</option>
+            <option value="SAFETY OFFICER">Safety Officer</option>
+        </select>
+        <select id="reg_specialty">
+            <option value="GENERAL">General</option>
+            <option value="ARCHITECTURAL">Architectural</option>
+            <option value="STRUCTURAL">Structural</option>
+            <option value="ELECTRICAL">Electrical</option>
+            <option value="MECHANICAL">Mechanical</option>
+            <option value="PLUMBING">Plumbing</option>
+        </select>
+        <button onclick="register()">Register</button>
+        <div id="registerResult"></div>
+    </div>
+
+    <!-- Login Section -->
+    <div id="loginSection">
+        <h2>Login</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <!-- Main Dashboard (Visible after login) -->
+    <div id="dashboard" style="display:none;">
+        <h2>Dashboard</h2>
+        <button onclick="logout()">Logout</button>
+        
+        <!-- Navigation Tabs -->
+        <div>
+            <button onclick="showTab('projects')">Projects</button>
+            <button onclick="showTab('trades')">Trades</button>
+            <button onclick="showTab('issues')">Issues</button>
+            <button onclick="showTab('comments')">Comments</button>
+        </div>
+
+        <!-- Projects Tab -->
+        <div id="projectsTab">
+            <h3>Projects</h3>
+            <button onclick="getProjects()">Load Projects</button>
+            <button onclick="showCreateProjectForm()">Create Project</button>
+            
+            <div id="createProjectForm" style="display:none; border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+                <h4>Create New Project</h4>
+                <input type="text" id="project_name" placeholder="Project Name">
+                <input type="text" id="project_description" placeholder="Description">
+                <input type="date" id="project_start_date">
+                <input type="date" id="project_end_date">
+                <button onclick="createProject()">Create</button>
+                <button onclick="hideCreateProjectForm()">Cancel</button>
+            </div>
+            
+            <div id="projectsList"></div>
+        </div>
+
+        <!-- Trades Tab -->
+        <div id="tradesTab" style="display:none;">
+            <h3>Trades</h3>
+            <button onclick="getTrades()">Load Trades</button>
+            <button onclick="showCreateTradeForm()">Create Trade</button>
+            
+            <div id="createTradeForm" style="display:none; border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+                <h4>Create New Trade</h4>
+                <input type="text" id="trade_name" placeholder="Trade Name">
+                <select id="trade_project">
+                    <option value="">Select Project</option>
+                </select>
+                <button onclick="createTrade()">Create</button>
+                <button onclick="hideCreateTradeForm()">Cancel</button>
+            </div>
+            
+            <div id="tradesList"></div>
+        </div>
+
+        <!-- Issues Tab -->
+        <div id="issuesTab" style="display:none;">
+            <h3>Issues</h3>
+            <button onclick="getIssues()">Load Issues</button>
+            <button onclick="showCreateIssueForm()">Create Issue</button>
+            
+            <div id="createIssueForm" style="display:none; border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+                <h4>Create New Issue</h4>
+                <input type="text" id="issue_title" placeholder="Title">
+                <textarea id="issue_description" placeholder="Description" rows="3" cols="50"></textarea>
+                <select id="issue_trade">
+                    <option value="ELECTRICAL">Electrical</option>
+                    <option value="PLUMBING">Plumbing</option>
+                    <option value="STRUCTURAL">Structural</option>
+                    <option value="ARCHITECTURAL">Architectural</option>
+                    <option value="MECHANICAL">Mechanical</option>
+                </select>
+                <select id="issue_priority">
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH">High</option>
+                    <option value="URGENT">Urgent</option>
+                </select>
+                <select id="issue_project">
+                    <option value="">Select Project</option>
+                </select>
+                <button onclick="createIssue()">Create</button>
+                <button onclick="hideCreateIssueForm()">Cancel</button>
+            </div>
+            
+            <div id="issuesList"></div>
+        </div>
+
+        <!-- Comments Tab -->
+        <div id="commentsTab" style="display:none;">
+            <h3>Comments</h3>
+            <button onclick="getComments()">Load Comments</button>
+            <button onclick="showCreateCommentForm()">Create Comment</button>
+            
+            <div id="createCommentForm" style="display:none; border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+                <h4>Create New Comment</h4>
+                <select id="comment_issue">
+                    <option value="">Select Issue</option>
+                </select>
+                <textarea id="comment_content" placeholder="Comment content" rows="3" cols="50"></textarea>
+                <button onclick="createComment()">Create</button>
+                <button onclick="hideCreateCommentForm()">Cancel</button>
+            </div>
+            
+            <div id="commentsList"></div>
+        </div>
+    </div>
+
+    <script>
+        let token = '';
+        let currentProjects = [];
+
+        // Show/hide tabs
+        function showTab(tabName) {
+            // Hide all tabs
+            document.getElementById('projectsTab').style.display = 'none';
+            document.getElementById('tradesTab').style.display = 'none';
+            document.getElementById('issuesTab').style.display = 'none';
+            document.getElementById('commentsTab').style.display = 'none';
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').style.display = 'block';
+        }
+
+        // Registration
+        async function register() {
+            const response = await fetch('/api/auth/register/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    username: document.getElementById('reg_username').value,
+                    email: document.getElementById('reg_email').value,
+                    password: document.getElementById('reg_password').value,
+                    role: document.getElementById('reg_role').value,
+                    specialty: document.getElementById('reg_specialty').value
+                })
+            });
+            
+            const data = await response.json();
+            document.getElementById('registerResult').innerHTML = 
+                response.ok ? '✅ ' + data.message : '❌ ' + (data.error || 'Registration failed');
+        }
+
+        // Login
+        async function login() {
+            const response = await fetch('/api/auth/login/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    email: document.getElementById('email').value,
+                    password: document.getElementById('password').value
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                token = data.access;
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('registerSection').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                showTab('projects');
+                getProjects();
+            } else {
+                document.getElementById('loginResult').innerHTML = '❌ ' + (data.detail || 'Login failed');
+            }
+        }
+
+        // Logout
+        function logout() {
+            token = '';
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('registerSection').style.display = 'block';
+        }
+
+        // Projects - FIXED FIELD NAMES
+        async function getProjects() {
+            const response = await fetch('/api/projects/', {
+                headers: {'Authorization': 'Bearer ' + token}
+            });
+            const projects = await response.json();
+            currentProjects = projects;
+            
+            let html = '<h4>Projects List:</h4>';
+            projects.forEach(project => {
+                html += `<div style="border:1px solid #ccc; margin:5px; padding:10px;">
+                    <strong>${project.project_name}</strong><br>
+                    ${project.description}<br>
+                    <small>ID: ${project.id} | Dates: ${project.start_date} to ${project.end_date}</small>
+                </div>`;
+            });
+            document.getElementById('projectsList').innerHTML = html;
+            
+            // Update project dropdowns
+            updateProjectDropdowns();
+        }
+
+        function showCreateProjectForm() {
+            document.getElementById('createProjectForm').style.display = 'block';
+        }
+
+        function hideCreateProjectForm() {
+            document.getElementById('createProjectForm').style.display = 'none';
+        }
+
+        async function createProject() {
+            const response = await fetch('/api/projects/', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    project_name: document.getElementById('project_name').value,
+                    description: document.getElementById('project_description').value,
+                    start_date: document.getElementById('project_start_date').value,
+                    end_date: document.getElementById('project_end_date').value
+                })
+            });
+            
+            if (response.ok) {
+                hideCreateProjectForm();
+                getProjects();
+            }
+        }
+
+        // Trades
+        async function getTrades() {
+            const response = await fetch('/api/trades/', {
+                headers: {'Authorization': 'Bearer ' + token}
+            });
+            const trades = await response.json();
+            
+            let html = '<h4>Trades List:</h4>';
+            trades.forEach(trade => {
+                html += `<div style="border:1px solid #ccc; margin:5px; padding:10px;">
+                    <strong>${trade.name}</strong><br>
+                    <small>ID: ${trade.id} | Project: ${trade.project}</small>
+                </div>`;
+            });
+            document.getElementById('tradesList').innerHTML = html;
+        }
+
+        function showCreateTradeForm() {
+            document.getElementById('createTradeForm').style.display = 'block';
+        }
+
+        function hideCreateTradeForm() {
+            document.getElementById('createTradeForm').style.display = 'none';
+        }
+
+        async function createTrade() {
+            const response = await fetch('/api/trades/', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: document.getElementById('trade_name').value,
+                    project: document.getElementById('trade_project').value
+                })
+            });
+            
+            if (response.ok) {
+                hideCreateTradeForm();
+                getTrades();
+            }
+        }
+
+        // Issues
+        async function getIssues() {
+            const response = await fetch('/api/issues/', {
+                headers: {'Authorization': 'Bearer ' + token}
+            });
+            const issues = await response.json();
+            
+            let html = '<h4>Issues List:</h4>';
+            issues.forEach(issue => {
+                html += `<div style="border:1px solid #ccc; margin:5px; padding:10px;">
+                    <strong>${issue.title}</strong> (${issue.priority})<br>
+                    ${issue.description}<br>
+                    <small>Trade: ${issue.trade_category} | Status: ${issue.status} | Project: ${issue.project}</small>
+                </div>`;
+            });
+            document.getElementById('issuesList').innerHTML = html;
+            
+            // Update issue dropdown for comments
+            updateIssueDropdown();
+        }
+
+        function showCreateIssueForm() {
+            document.getElementById('createIssueForm').style.display = 'block';
+        }
+
+        function hideCreateIssueForm() {
+            document.getElementById('createIssueForm').style.display = 'none';
+        }
+
+        async function createIssue() {
+            const response = await fetch('/api/issues/', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: document.getElementById('issue_title').value,
+                    description: document.getElementById('issue_description').value,
+                    trade_category: document.getElementById('issue_trade').value,
+                    priority: document.getElementById('issue_priority').value,
+                    project: document.getElementById('issue_project').value,
+                    status: 'OPEN'
+                })
+            });
+            
+            if (response.ok) {
+                hideCreateIssueForm();
+                getIssues();
+            }
+        }
+
+        // Comments
+        async function getComments() {
+            const response = await fetch('/api/comments/', {
+                headers: {'Authorization': 'Bearer ' + token}
+            });
+            const comments = await response.json();
+            
+            let html = '<h4>Comments List:</h4>';
+            comments.forEach(comment => {
+                html += `<div style="border:1px solid #ccc; margin:5px; padding:10px;">
+                    ${comment.content}<br>
+                    <small>Issue: ${comment.issue} | User: ${comment.user}</small>
+                </div>`;
+            });
+            document.getElementById('commentsList').innerHTML = html;
+        }
+
+        function showCreateCommentForm() {
+            document.getElementById('createCommentForm').style.display = 'block';
+        }
+
+        function hideCreateCommentForm() {
+            document.getElementById('createCommentForm').style.display = 'none';
+        }
+
+        async function createComment() {
+            const response = await fetch('/api/comments/', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    issue: document.getElementById('comment_issue').value,
+                    content: document.getElementById('comment_content').value
+                })
+            });
+            
+            if (response.ok) {
+                hideCreateCommentForm();
+                getComments();
+            }
+        }
+
+        // Helper functions
+        function updateProjectDropdowns() {
+            const projectSelects = ['trade_project', 'issue_project'];
+            projectSelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                select.innerHTML = '<option value="">Select Project</option>';
+                currentProjects.forEach(project => {
+                    select.innerHTML += `<option value="${project.id}">${project.project_name}</option>`;
+                });
+            });
+        }
+
+        async function updateIssueDropdown() {
+            const response = await fetch('/api/issues/', {
+                headers: {'Authorization': 'Bearer ' + token}
+            });
+            const issues = await response.json();
+            
+            const select = document.getElementById('comment_issue');
+            select.innerHTML = '<option value="">Select Issue</option>';
+            issues.forEach(issue => {
+                select.innerHTML += `<option value="${issue.id}">${issue.title}</option>`;
+            });
+        }
+
+        // Show projects tab by default when dashboard loads
+        showTab('projects');
+    </script>
+</body>
+</html>
