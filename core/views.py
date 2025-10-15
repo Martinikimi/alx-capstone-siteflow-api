@@ -8,6 +8,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
+from rest_framework.decorators import api_view
 
 
 def dashboard(request):
@@ -31,6 +32,8 @@ def register_user(request):
         'message': 'User created!',
         'user_id': user.id
     })
+
+
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
@@ -44,6 +47,37 @@ class IssueViewSet(viewsets.ModelViewSet):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializer
     permission_classes =[IsAuthenticated]
+    
+@api_view(['GET', 'POST'])
+def project_issues(request, project_id):
+    """
+Handle issues for a specific project
+- GET: Get all issues for this project
+- POST: Create a new issue in this project
+    """
+    try:
+        project= Project.objects.get(id = project_id)
+    except Project.DoesNotExist:
+        return Response(
+        {"error": "Project not found"}, 
+        status=status.HTTP_404_NOT_FOUND
+    )
+        
+    if request.method =='GET':
+        issues = Issue.objects.filter(project_id = project_id)
+        serializer = IssueSerializer(issues, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        data = request.data.copy()
+        data['project'] = project_id
+        serializer = IssueSerializer(data=data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()

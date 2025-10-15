@@ -30,8 +30,8 @@ class IssueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
         fields = [
-            'id', 'project', 'project_name', 'trade', 'issue_title', 
-            'detailed_description', 'priority', 'assigned_to', 'due_date',
+            'project_name', 'trade', 'issue_title', 
+            'detailed_description', 'priority', 'due_date',
             'status', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
