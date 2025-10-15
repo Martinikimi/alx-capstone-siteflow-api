@@ -43,6 +43,63 @@ class TradeViewSet(viewsets.ModelViewSet):
     serializer_class = TradeSerializer
     permission_classes =[IsAuthenticated]
     
+@api_view(['POST'])
+
+def add_trade_to_project(request, project_id):
+    """
+    Add a trade to a specific project
+    POST /api/projects/1/add_trade/
+    {
+        "trade_name": "ELECTRICAL"
+    }
+    """
+    
+    # STEP 1: Check if project exists
+    try:
+        project = Project.objects.get(id=project_id)
+    except Project.DoesNotExist:
+        return Response(
+            {"error": "Project not found"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    # STEP 2: Get the trade name from request
+    trade_name = request.data.get('trade_name')
+    
+    if not trade_name:
+        return Response(
+            {"error": "Trade name is required"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # STEP 3: Create the trade and link it to the project
+    try:
+        # Create the trade or get existing one
+        trade, created = Trade.objects.get_or_create(
+            name=trade_name,
+            project=project
+        )
+        
+        # STEP 4: Return success message
+        if created:
+            message = f"Trade '{trade_name}' added to project '{project.project_name}'"
+        else:
+            message = f"Trade '{trade_name}' already exists in project '{project.project_name}'"
+        
+        return Response({
+            "message": message,
+            "project_id": project.id,
+            "project_name": project.project_name,
+            "trade_name": trade_name,
+            "trade_id": trade.id
+        }, status=status.HTTP_201_CREATED)
+        
+    except Exception as e:
+        return Response(
+            {"error": f"Failed to add trade: {str(e)}"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
 class IssueViewSet(viewsets.ModelViewSet):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializer
