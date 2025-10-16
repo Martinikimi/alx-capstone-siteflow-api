@@ -9,7 +9,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view
-
+from .filters import IssueFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 def dashboard(request):
     return render(request, 'core/dashboard.html')
@@ -53,13 +55,6 @@ def user_profile(request):
 
 
 
-
-
-
-
-
-
-
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
@@ -67,7 +62,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class TradeViewSet(viewsets.ModelViewSet):
     queryset = Trade.objects.all()
     serializer_class = TradeSerializer
-    permission_classes =[IsAuthenticated]
+    
     
 @api_view(['POST'])
 
@@ -129,7 +124,12 @@ def add_trade_to_project(request, project_id):
 class IssueViewSet(viewsets.ModelViewSet):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializer
-    permission_classes =[IsAuthenticated]
+    
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = IssueFilter
+    search_fields = ['issue_title', 'detailed_description']
+    ordering_fields = ['priority', 'due_date', 'created_at']
+
     
 @api_view(['GET', 'POST'])
 def project_issues(request, project_id):
@@ -228,7 +228,7 @@ def assign_issue(request, issue_id):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+
     
 @api_view(['GET', 'POST'])
 
