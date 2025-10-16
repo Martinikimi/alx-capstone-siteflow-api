@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from .models import Project,Trade,Issue,Comment, Attachment
+from .models import Project, Trade, Issue, Comment, Attachment
 from .serializers import ProjectSerializer, TradeSerializer, IssueSerializer, CommentSerializer, AttachmentSerializer, UserSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
@@ -8,41 +8,50 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from rest_framework.decorators import api_view
-from .filters import IssueFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
-from .filters import IssueFilter
-from .filters import CommentFilter
+from .filters import IssueFilter, CommentFilter
 
 def dashboard(request):
     return render(request, 'core/dashboard.html')
 
 User = get_user_model()
+
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 @permission_classes([AllowAny])
 def register_user(request):
-    # Get the data from the form
-    data = request.data
-    
-    user = User.objects.create_user(
-    username=data['username'],
-    email=data['email'],
-    password=data['password'],
-)
-    user.save()
-    
-    return Response({
-        'message': 'User created!',
-        'user_id': user.id
-    })
+    try:
+        data = request.data
+        
+        # Check for missing fields
+        if not data.get('username') or not data.get('email') or not data.get('password'):
+            return Response(
+                {'error': 'Missing required fields: username, email, password'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user = User.objects.create_user(
+            username=data['username'],
+            email=data['email'],
+            password=data['password'],
+        )
+        user.save()
+        
+        return Response({
+            'message': 'User created!',
+            'user_id': user.id
+        })
+        
+    except Exception as e:
+        return Response(
+            {'error': f'Registration failed: {str(e)}'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
-
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 def user_profile(request):
-    if request.method =='GET':
+    if request.method == 'GET':
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
     
@@ -51,10 +60,15 @@ def user_profile(request):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    else:
+        return Response(
+            {'error': 'Method not allowed'}, 
+            status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
+
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
@@ -64,7 +78,6 @@ class TradeViewSet(viewsets.ModelViewSet):
     queryset = Trade.objects.all()
     serializer_class = TradeSerializer
     permission_classes = [IsAuthenticated]
-    
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -76,7 +89,6 @@ def add_trade_to_project(request, project_id):
         "trade_name": "ELECTRICAL"
     }
     """
-
     # STEP 1: Check if project exists
     try:
         project = Project.objects.get(id=project_id)
@@ -132,25 +144,24 @@ class IssueViewSet(viewsets.ModelViewSet):
     search_fields = ['issue_title', 'detailed_description']
     ordering_fields = ['priority', 'due_date', 'created_at']
 
-    
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def project_issues(request, project_id):
     """
-Handle issues for a specific project
-- GET: Get all issues for this project
-- POST: Create a new issue in this project
+    Handle issues for a specific project
+    - GET: Get all issues for this project
+    - POST: Create a new issue in this project
     """
     try:
-        project= Project.objects.get(id = project_id)
+        project = Project.objects.get(id=project_id)
     except Project.DoesNotExist:
         return Response(
-        {"error": "Project not found"}, 
-        status=status.HTTP_404_NOT_FOUND
-    )
+            {"error": "Project not found"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
         
-    if request.method =='GET':
-        issues = Issue.objects.filter(project_id = project_id)
+    if request.method == 'GET':
+        issues = Issue.objects.filter(project_id=project_id)
         serializer = IssueSerializer(issues, many=True)
         return Response(serializer.data)
     
@@ -175,7 +186,6 @@ def assign_issue(request, issue_id):
         "assigned_trade": "ELECTRICAL"
     }
     """
-
     # STEP 1: Check if issue exists
     try:
         issue = Issue.objects.get(id=issue_id)
@@ -194,7 +204,7 @@ def assign_issue(request, issue_id):
             status=status.HTTP_400_BAD_REQUEST
         )
     
-    # STEP 3: Validate it's a valid trade choice - FIXED LINE!
+    # STEP 3: Validate it's a valid trade choice
     valid_trades = [choice[0] for choice in Issue._meta.get_field('assigned_to').choices]
     if assigned_trade not in valid_trades:
         return Response(
@@ -239,7 +249,6 @@ class CommentViewSet(viewsets.ModelViewSet):
     ordering_fields = ['timestamp', 'user']
     ordering = ['-timestamp']
 
-    
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def issue_comments(request, issue_id):
@@ -247,9 +256,7 @@ def issue_comments(request, issue_id):
     Get or add comments for a specific issue
     GET /api/issues/15/comments/ - Get all comments for issue 15
     POST /api/issues/15/comments/ - Add comment to issue 15
-    
     """
-    
     # STEP 1: Check if issue exists
     try:
         issue = Issue.objects.get(id=issue_id)
@@ -261,14 +268,12 @@ def issue_comments(request, issue_id):
     
     # STEP 2: Handle GET request (view comments)
     if request.method == 'GET':
-        # Get all comments for this issue, ordered by newest first
         comments = Comment.objects.filter(issue=issue).order_by('-timestamp')
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
     
     # STEP 3: Handle POST request (add comment)
     elif request.method == 'POST':
-        # Get the comment content
         content = request.data.get('content')
         
         if not content:
@@ -277,7 +282,6 @@ def issue_comments(request, issue_id):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # STEP 4: Create the comment
         try:
             comment = Comment.objects.create(
                 issue=issue,
@@ -285,7 +289,6 @@ def issue_comments(request, issue_id):
                 content=content
             )
             
-            # STEP 5: Return success
             return Response({
                 "message": "Comment added successfully",
                 "comment_id": comment.id,
@@ -305,7 +308,7 @@ def issue_comments(request, issue_id):
 class AttachmentViewSet(viewsets.ModelViewSet):
     queryset = Attachment.objects.all()
     serializer_class = AttachmentSerializer
-    permission_classes =[IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -316,7 +319,6 @@ def upload_attachment(request, issue_id):
     Form Data:
     - file: (the actual file - image, PDF, etc.)
     """
-    
     # STEP 1: Check if issue exists
     try:
         issue = Issue.objects.get(id=issue_id)
@@ -337,25 +339,24 @@ def upload_attachment(request, issue_id):
     uploaded_file = request.FILES['file']
     
     # STEP 4: Validate file size (optional - 10MB limit)
-    if uploaded_file.size > 10 * 1024 * 1024:  # 10MB
+    if uploaded_file.size > 10 * 1024 * 1024:
         return Response(
             {"error": "File too large. Maximum size is 10MB"}, 
             status=status.HTTP_400_BAD_REQUEST
         )
     
-    # STEP 5: Create the attachment using YOUR model
+    # STEP 5: Create the attachment
     try:
         attachment = Attachment.objects.create(
             issue=issue,
-            user=request.user,  # Uses your 'user' field
-            file=uploaded_file  # Uses your 'file' field
+            user=request.user,
+            file=uploaded_file
         )
         
-        # STEP 6: Return success
         return Response({
             "message": "File uploaded successfully",
             "attachment_id": attachment.id,
-            "file_url": attachment.file.url,  # Django automatically creates URL
+            "file_url": attachment.file.url,
             "file_name": uploaded_file.name,
             "file_size": uploaded_file.size,
             "uploaded_by": request.user.username,
