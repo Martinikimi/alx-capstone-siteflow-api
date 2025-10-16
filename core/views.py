@@ -12,6 +12,8 @@ from rest_framework.decorators import api_view
 from .filters import IssueFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from .filters import IssueFilter
+from .filters import CommentFilter
 
 def dashboard(request):
     return render(request, 'core/dashboard.html')
@@ -228,6 +230,12 @@ def assign_issue(request, issue_id):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = CommentFilter
+    search_fields = ['content']
+    ordering_fields = ['timestamp', 'user']
+    ordering = ['-timestamp']
 
     
 @api_view(['GET', 'POST'])
