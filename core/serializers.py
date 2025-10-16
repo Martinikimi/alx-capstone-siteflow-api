@@ -30,7 +30,7 @@ class IssueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
         fields = [
-            'project_name', 'trade', 'issue_title', 
+            'id','project_name', 'trade', 'issue_title', 
             'detailed_description', 'priority', 'due_date',
             'status', 'created_at', 'updated_at'
         ]

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
 from .models import Project,Trade,Issue,Comment, Attachment
-from .serializers import ProjectSerializer, TradeSerializer, IssueSerializer, CommentSerializer, AttachmentSerializer
+from .serializers import ProjectSerializer, TradeSerializer, IssueSerializer, CommentSerializer, AttachmentSerializer, UserSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -34,10 +34,36 @@ def register_user(request):
     })
 
 
+@api_view(['GET', 'POST'])
+
+def user_profile(request):
+    if request.method =='GET':
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+    
+    elif request.method == 'PUT':
+        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+
+
+
+
+
+
+
+
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes =[IsAuthenticated]
+    
 class TradeViewSet(viewsets.ModelViewSet):
     queryset = Trade.objects.all()
     serializer_class = TradeSerializer
