@@ -47,6 +47,7 @@ class Project(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     trades = models.ManyToManyField('Trade')
+    assigned_users = models.ManyToManyField(settings.AUTH_USER_MODEL, blank =True, related_name='assigned_projects')
     
     def __str__(self):
         return self.project_name
