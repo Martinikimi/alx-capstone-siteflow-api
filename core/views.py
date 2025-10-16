@@ -11,6 +11,7 @@ from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from .filters import IssueFilter, CommentFilter
+from django.db.models import Q
 
 def dashboard(request):
     return render(request, 'core/dashboard.html')
@@ -73,6 +74,18 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        """FILTER GLASSES for Projects"""
+        user = self.request.user  # "Who is asking?"
+        
+        # PROJECT MANAGER: "Show me ALL classrooms"
+        if user.role in ['ADMIN', 'PROJECT MANAGER']:
+            return Project.objects.all()
+        
+        # EVERYONE ELSE: "Show me only MY classrooms"
+        else:
+            return user.assigned_projects.all()
     
 class TradeViewSet(viewsets.ModelViewSet):
     queryset = Trade.objects.all()
