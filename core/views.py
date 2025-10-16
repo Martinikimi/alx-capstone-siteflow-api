@@ -143,6 +143,43 @@ class IssueViewSet(viewsets.ModelViewSet):
     filterset_class = IssueFilter
     search_fields = ['issue_title', 'detailed_description']
     ordering_fields = ['priority', 'due_date', 'created_at']
+    
+    def get_queryset(self):
+        """
+        FILTER GLASSES: Show people only what they should see
+        Like giving different people different pairs of glasses
+        """
+        user = self.request.user  # "Who is asking?"
+        
+        # GLASSES 1: PROJECT MANAGER GLASSES (see everything)
+        if user.role in ['ADMIN', 'PROJECT MANAGER']:
+            return Issue.objects.all()  # "Show me ALL issues"
+        
+        # GLASSES 2: SITE OFFICER GLASSES (see assigned projects only)  
+        elif user.role == 'SITE OFFICER':
+            # "Show me issues only from MY classrooms"
+            return Issue.objects.filter(project__in=user.assigned_projects.all())
+        
+        # GLASSES 3: SUBCONTRACTOR GLASSES (see only their trade)
+        elif user.role == 'SUB CONTRACTOR' and user.specialty:
+            # "Show me only PLUMBING issues from MY classrooms"
+            return Issue.objects.filter(
+                project__in=user.assigned_projects.all(),  
+                trade=user.specialty  # Only my specialty
+            )
+        
+        # GLASSES 4: SAFETY OFFICER GLASSES (see safety issues only)
+        elif user.role == 'SAFETY OFFICER':
+            # "Show me only DANGEROUS issues from MY classrooms"
+            return Issue.objects.filter(
+                project__in=user.assigned_projects.all()  
+            ).filter(
+                Q(priority='HIGH') | Q(priority='CRITICAL') 
+            )
+        
+        # NO GLASSES: See nothing
+        else:
+            return Issue.objects.none()  
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
