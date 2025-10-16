@@ -20,6 +20,7 @@ def dashboard(request):
 
 User = get_user_model()
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 @permission_classes([AllowAny])
 def register_user(request):
     # Get the data from the form
@@ -39,7 +40,7 @@ def register_user(request):
 
 
 @api_view(['GET', 'POST'])
-
+@permission_classes([IsAuthenticated])
 def user_profile(request):
     if request.method =='GET':
         serializer = UserSerializer(request.user)
@@ -53,21 +54,20 @@ def user_profile(request):
         
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-
-
-
+    
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    permission_classes = [IsAuthenticated]
     
 class TradeViewSet(viewsets.ModelViewSet):
     queryset = Trade.objects.all()
     serializer_class = TradeSerializer
+    permission_classes = [IsAuthenticated]
     
     
 @api_view(['POST'])
-
+@permission_classes([IsAuthenticated])
 def add_trade_to_project(request, project_id):
     """
     Add a trade to a specific project
@@ -76,7 +76,7 @@ def add_trade_to_project(request, project_id):
         "trade_name": "ELECTRICAL"
     }
     """
-    
+
     # STEP 1: Check if project exists
     try:
         project = Project.objects.get(id=project_id)
@@ -126,7 +126,7 @@ def add_trade_to_project(request, project_id):
 class IssueViewSet(viewsets.ModelViewSet):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializer
-    
+    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = IssueFilter
     search_fields = ['issue_title', 'detailed_description']
@@ -134,6 +134,7 @@ class IssueViewSet(viewsets.ModelViewSet):
 
     
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def project_issues(request, project_id):
     """
 Handle issues for a specific project
@@ -165,6 +166,7 @@ Handle issues for a specific project
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def assign_issue(request, issue_id):
     """
     Assign or reassign an issue to a trade
@@ -173,7 +175,7 @@ def assign_issue(request, issue_id):
         "assigned_trade": "ELECTRICAL"
     }
     """
-    
+
     # STEP 1: Check if issue exists
     try:
         issue = Issue.objects.get(id=issue_id)
@@ -230,7 +232,7 @@ def assign_issue(request, issue_id):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    
+    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = CommentFilter
     search_fields = ['content']
@@ -239,7 +241,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     
 @api_view(['GET', 'POST'])
-
+@permission_classes([IsAuthenticated])
 def issue_comments(request, issue_id):
     """
     Get or add comments for a specific issue
@@ -306,7 +308,7 @@ class AttachmentViewSet(viewsets.ModelViewSet):
     permission_classes =[IsAuthenticated]
     
 @api_view(['POST'])
-
+@permission_classes([IsAuthenticated])
 def upload_attachment(request, issue_id):
     """
     Upload a file attachment to an issue
