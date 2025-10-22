@@ -53,7 +53,7 @@ class Project(models.Model):
         return self.project_name
     
 class Trade(models.Model):
-    name = models.CharField(max_length=100, choices= TRADE_CHOICES)
+    name = models.CharField(max_length=100, choices= TRADE_CHOICES,  unique=True)
     
     def __str__(self):
         return self.name
@@ -73,11 +73,11 @@ class Issue(models.Model):
 ]
     
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    trade = models.CharField(max_length=100, choices=TRADE_CHOICES)
+    trade = models.ForeignKey('Trade', on_delete=models.CASCADE)
     issue_title = models.CharField(max_length=100, blank=False, null=False)
     detailed_description = models.TextField(blank=False, null =False)
     priority = models.CharField(max_length=100, choices=PRIORITY_STATUS)
-    assigned_to = models.CharField(max_length=100,choices= TRADE_CHOICES)
+    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     due_date = models.DateField()
     status = models.CharField(max_length= 50, choices = STATUS_CHOICES, default = 'open')
     created_at = models.DateTimeField(auto_now_add=True)

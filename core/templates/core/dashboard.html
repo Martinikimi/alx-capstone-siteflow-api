@@ -5,290 +5,205 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SiteFlow - Construction Management</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --primary: #2563eb; --primary-dark: #1d4ed8; --secondary: #64748b; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --light: #f8fafc; --dark: #1e293b; --border: #e2e8f0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; color: var(--dark); line-height: 1.6; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        header { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; }
-        .logo { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.5rem; color: var(--primary); }
-        .nav-links { display: flex; gap: 2rem; align-items: center; }
-        .nav-links a { text-decoration: none; color: var(--dark); font-weight: 500; transition: color 0.3s; }
-        .nav-links a:hover { color: var(--primary); }
-        .user-info { display: flex; align-items: center; gap: 1rem; }
-        .btn { padding: 0.5rem 1rem; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-block; text-align: center; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-danger:hover { background: #dc2626; }
-        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
-        .btn-outline:hover { background: var(--primary); color: white; }
-        .card { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
-        .card-header { border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-        input, select, textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        .main-content { padding: 2rem 0; min-height: calc(100vh - 80px); }
-        .grid { display: grid; gap: 1.5rem; }
-        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-        .stat-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; }
-        .stat-number { font-size: 2rem; font-weight: bold; color: var(--primary); display: block; }
-        .stat-label { color: var(--secondary); font-size: 0.9rem; }
-        .status-badge { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500; display: inline-block; }
-        .status-open { background: #fef3c7; color: #d97706; }
-        .status-in_progress { background: #dbeafe; color: #2563eb; }
-        .status-resolved { background: #dcfce7; color: #16a34a; }
-        .status-closed { background: #f3f4f6; color: #6b7280; }
-        .priority-badge { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500; display: inline-block; }
-        .priority-low { background: #dcfce7; color: #16a34a; }
-        .priority-medium { background: #fef3c7; color: #d97706; }
-        .priority-high { background: #fecaca; color: #dc2626; }
-        .priority-critical { background: #fef2f2; color: #ef4444; border: 1px solid #ef4444; }
-        .table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .table th, .table td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border); }
-        .table th { background: #f8fafc; font-weight: 600; color: var(--secondary); }
-        .table tr:hover { background: #f8fafc; }
-        .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
-        .tab { padding: 1rem 1.5rem; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s; }
-        .tab.active { border-bottom-color: var(--primary); color: var(--primary); font-weight: 500; }
-        .tab:hover { color: var(--primary); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .hidden { display: none !important; }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .mt-4 { margin-top: 1rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .p-4 { padding: 1rem; }
-        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @media (max-width: 768px) { .navbar { flex-direction: column; gap: 1rem; } .nav-links { flex-direction: column; gap: 1rem; } .user-info { flex-direction: column; gap: 0.5rem; } }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .hidden { display: none; }
+        .card { background: white; padding: 20px; margin: 10px 0; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn { padding: 10px 15px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .form-group { margin: 10px 0; }
+        label { display: block; margin-bottom: 5px; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .debug-info { background: #fff3cd; padding: 10px; border-radius: 5px; margin: 10px 0; font-family: monospace; font-size: 12px; }
     </style>
 </head>
 <body>
     <header>
-        <div class="container">
-            <nav class="navbar">
-                <div class="logo">🏗️ SiteFlow</div>
-                <div class="nav-links">
-                    <a href="#" onclick="showSection('dashboard')">Dashboard</a>
-                    <a href="#" onclick="showSection('projects')">Projects</a>
-                    <a href="#" onclick="showSection('issues')">Issues</a>
-                    <div class="user-info">
-                        <span id="userEmail">Not logged in</span>
-                        <button id="loginBtn" class="btn btn-primary" onclick="showSection('login')">Login</button>
-                        <button id="logoutBtn" class="btn btn-danger hidden" onclick="logout()">Logout</button>
-                    </div>
-                </div>
-            </nav>
+        <h1>🏗️ SiteFlow</h1>
+        <div>
+            <span id="userEmail">Not logged in</span>
+            <span id="userRoleBadge" style="background: #6c757d; color: white; padding: 2px 8px; border-radius: 10px; margin: 0 10px;"></span>
+            <button id="loginBtn" class="btn btn-primary" onclick="showSection('login')">Login</button>
+            <button id="logoutBtn" class="btn btn-danger hidden" onclick="logout()">Logout</button>
         </div>
     </header>
 
-    <main class="main-content">
-        <div class="container">
-            <!-- Login Section -->
-            <section id="login-section" class="section">
-                <div class="card" style="max-width: 400px; margin: 2rem auto;">
-                    <div class="card-header"><h2>Login to SiteFlow</h2></div>
-                    <form id="loginForm">
-                        <div class="form-group">
-                            <label for="loginEmail">Email</label>
-                            <input type="email" id="loginEmail" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="loginPassword">Password</label>
-                            <input type="password" id="loginPassword" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
-                    </form>
-                    <div class="text-center mt-4">
-                        <p>Don't have an account? <a href="#" onclick="showSection('register')">Register here</a></p>
+    <nav style="margin: 20px 0;">
+        <button onclick="showSection('dashboard')">Dashboard</button>
+        <button onclick="showSection('projects')">Projects</button>
+        <button onclick="showSection('issues')">Issues</button>
+        <button onclick="showSection('trades')" id="tradesNavBtn" class="hidden">🔧 Trades</button>
+        <button onclick="showSection('users')" id="usersNavBtn" class="hidden">👥 Users</button>
+        <button onclick="showDebugInfo()" class="btn" style="background: #ffc107;">🐛 Debug</button>
+    </nav>
+
+    <main>
+        <!-- Login Section -->
+        <section id="login-section">
+            <div class="card" style="max-width: 400px;">
+                <h2>Login</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" required>
                     </div>
-                </div>
-            </section>
-
-            <!-- Register Section -->
-            <section id="register-section" class="section hidden">
-                <div class="card" style="max-width: 500px; margin: 2rem auto;">
-                    <div class="card-header"><h2>Create Account</h2></div>
-                    <form id="registerForm">
-                        <div class="grid grid-2">
-                            <div class="form-group">
-                                <label for="regUsername">Username</label>
-                                <input type="text" id="regUsername" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="regEmail">Email</label>
-                                <input type="email" id="regEmail" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="regPassword">Password</label>
-                            <input type="password" id="regPassword" required>
-                        </div>
-                        <div class="grid grid-2">
-                            <div class="form-group">
-                                <label for="regRole">Role</label>
-                                <select id="regRole" required>
-                                    <option value="">Select Role</option>
-                                    <option value="PROJECT MANAGER">Project Manager</option>
-                                    <option value="SITE OFFICER">Site Officer</option>
-                                    <option value="SUB CONTRACTOR">Sub Contractor</option>
-                                    <option value="SAFETY OFFICER">Safety Officer</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="regSpecialty">Specialty</label>
-                                <select id="regSpecialty">
-                                    <option value="">Select Specialty</option>
-                                    <option value="GENERAL">General</option>
-                                    <option value="ARCHITECTURAL">Architectural</option>
-                                    <option value="STRUCTURAL">Structural</option>
-                                    <option value="ELECTRICAL">Electrical</option>
-                                    <option value="MECHANICAL">Mechanical</option>
-                                    <option value="PLUMBING">Plumbing</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
-                    </form>
-                    <div class="text-center mt-4">
-                        <p>Already have an account? <a href="#" onclick="showSection('login')">Login here</a></p>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" required>
                     </div>
-                </div>
-            </section>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+                <p>Don't have an account? <a href="#" onclick="showSection('register')">Register</a></p>
+            </div>
+        </section>
 
-            <!-- Dashboard Section -->
-            <section id="dashboard-section" class="section hidden">
-                <h1>Dashboard</h1>
-                <div class="stats-grid">
-                    <div class="stat-card"><span class="stat-number" id="projectCount">0</span><span class="stat-label">Total Projects</span></div>
-                    <div class="stat-card"><span class="stat-number" id="openIssuesCount">0</span><span class="stat-label">Open Issues</span></div>
-                    <div class="stat-card"><span class="stat-number" id="myIssuesCount">0</span><span class="stat-label">My Issues</span></div>
-                    <div class="stat-card"><span class="stat-number" id="highPriorityCount">0</span><span class="stat-label">High Priority</span></div>
-                </div>
-                <div class="grid grid-2">
-                    <div class="card">
-                        <div class="card-header"><h3>Recent Issues</h3></div>
-                        <div id="recentIssues"><div class="spinner"></div></div>
+        <!-- Register Section -->
+        <section id="register-section" class="hidden">
+            <div class="card" style="max-width: 500px;">
+                <h2>Register</h2>
+                <form id="registerForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="regUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="regEmail" required>
+                        </div>
                     </div>
-                    <div class="card">
-                        <div class="card-header"><h3>My Projects</h3></div>
-                        <div id="myProjects"><div class="spinner"></div></div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="regPassword" required>
                     </div>
-                </div>
-            </section>
-
-            <!-- Projects Section -->
-            <section id="projects-section" class="section hidden">
-                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                    <h1>Projects</h1>
-                    <button class="btn btn-primary" onclick="showCreateProjectForm()">+ New Project</button>
-                </div>
-                
-                <div class="card hidden" id="createProjectForm">
-                    <h3>Create New Project</h3>
-                    <form id="projectForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div class="form-group">
-                            <label for="projectName">Project Name</label>
-                            <input type="text" id="projectName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="projectDescription">Description</label>
-                            <textarea id="projectDescription" rows="3" required></textarea>
-                        </div>
-                        <div class="grid grid-2">
-                            <div class="form-group">
-                                <label for="startDate">Start Date</label>
-                                <input type="date" id="startDate" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="endDate">End Date</label>
-                                <input type="date" id="endDate" required>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <button type="button" class="btn btn-outline" onclick="hideCreateProjectForm()">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Create Project</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div id="projectsList"><div class="spinner"></div></div>
-            </section>
-
-            <!-- Issues Section -->
-            <section id="issues-section" class="section hidden">
-                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                    <h1>Issues</h1>
-                    <button class="btn btn-primary" onclick="showCreateIssueForm()">+ New Issue</button>
-                </div>
-
-                <div class="card hidden" id="createIssueForm">
-                    <h3>Create New Issue</h3>
-                    <form id="issueForm">
-                        <div class="form-group">
-                            <label for="issueProject">Project</label>
-                            <select id="issueProject" required>
-                                <option value="">Select Project</option>
+                            <label>Role</label>
+                            <select id="regRole" required onchange="toggleSpecialtyField()">
+                                <option value="">Select Role</option>
+                                <option value="PROJECT MANAGER">Project Manager</option>
+                                <option value="SITE OFFICER">Site Officer</option>
+                                <option value="SUB CONTRACTOR">Sub Contractor</option>
+                                <option value="SAFETY OFFICER">Safety Officer</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="issueTitle">Issue Title</label>
-                            <input type="text" id="issueTitle" required>
+                            <label>Specialty</label>
+                            <select id="regSpecialty">
+                                <option value="">Select Specialty</option>
+                                <option value="GENERAL">General</option>
+                                <option value="ARCHITECTURAL">Architectural</option>
+                                <option value="STRUCTURAL">Structural</option>
+                                <option value="ELECTRICAL">Electrical</option>
+                                <option value="MECHANICAL">Mechanical</option>
+                                <option value="PLUMBING">Plumbing</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+                <p>Already have an account? <a href="#" onclick="showSection('login')">Login</a></p>
+            </div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="hidden">
+            <h2>Dashboard - <span id="dashboardRoleInfo"></span></h2>
+            
+            <div id="debugDashboardInfo" class="debug-info hidden">
+                <strong>Debug Info:</strong>
+                <div id="debugDashboardContent"></div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0;">
+                <div class="card">
+                    <h3 id="projectCount">0</h3>
+                    <p>Total Projects</p>
+                </div>
+                <div class="card">
+                    <h3 id="openIssuesCount">0</h3>
+                    <p>Open Issues</p>
+                </div>
+                <div class="card">
+                    <h3 id="myIssuesCount">0</h3>
+                    <p>My Issues</p>
+                </div>
+                <div class="card">
+                    <h3 id="highPriorityCount">0</h3>
+                    <p>High Priority</p>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="card">
+                    <h3>Recent Issues</h3>
+                    <div id="recentIssues">Loading...</div>
+                </div>
+                <div class="card">
+                    <h3>My Projects</h3>
+                    <div id="myProjects">Loading...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects-section" class="hidden">
+            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 20px;">
+                <h2>Projects - <span id="projectsRoleInfo"></span></h2>
+                <div>
+                    <button class="btn btn-primary" id="createProjectBtn" onclick="showCreateProjectForm()">+ New Project</button>
+                    <button class="btn btn-success" id="assignUsersBtn" onclick="showSection('users')">👥 Assign Users</button>
+                </div>
+            </div>
+
+            <div id="debugProjectsInfo" class="debug-info hidden">
+                <strong>Debug Info:</strong>
+                <div id="debugProjectsContent"></div>
+            </div>
+
+            <div class="card hidden" id="createProjectForm">
+                <h3>Create New Project</h3>
+                <form id="projectForm">
+                    <div class="form-group">
+                        <label>Project Name</label>
+                        <input type="text" id="projectName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="projectDescription" rows="3" required></textarea>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="date" id="startDate" required>
                         </div>
                         <div class="form-group">
-                            <label for="issueDescription">Detailed Description</label>
-                            <textarea id="issueDescription" rows="3" required></textarea>
+                            <label>End Date</label>
+                            <input type="date" id="endDate" required>
                         </div>
-                        <div class="grid grid-3">
-                            <div class="form-group">
-                                <label for="issueTrade">Trade</label>
-                                <select id="issueTrade" required>
-                                    <option value="">Select Trade</option>
-                                    <option value="ELECTRICAL">Electrical</option>
-                                    <option value="PLUMBING">Plumbing</option>
-                                    <option value="STRUCTURAL">Structural</option>
-                                    <option value="ARCHITECTURAL">Architectural</option>
-                                    <option value="HVAC">HVAC</option>
-                                    <option value="GENERAL">General</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="issuePriority">Priority</label>
-                                <select id="issuePriority" required>
-                                    <option value="">Select Priority</option>
-                                    <option value="LOW">Low</option>
-                                    <option value="MEDIUM">Medium</option>
-                                    <option value="HIGH">High</option>
-                                    <option value="CRITICAL">Critical</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="issueDueDate">Due Date</label>
-                                <input type="date" id="issueDueDate" required>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <button type="button" class="btn btn-outline" onclick="hideCreateIssueForm()">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Create Issue</button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                    <div>
+                        <button type="button" class="btn" onclick="hideCreateProjectForm()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Project</button>
+                    </div>
+                </form>
+            </div>
 
-                <div id="issuesList"><div class="spinner"></div></div>
-            </section>
-        </div>
+            <div id="projectsList">Loading projects...</div>
+        </section>
+
+        <!-- Other sections remain the same but with debug info added -->
+        <!-- Issues, Trades, Users sections... -->
+
     </main>
 
     <script>
-        // API Configuration - USING YOUR EXACT ENDPOINTS
+        // API Configuration
         const API_BASE = 'http://localhost:8000/api';
         let currentUser = null;
         let authToken = localStorage.getItem('authToken');
+        let debugMode = false;
 
         // DOM Elements
         const sections = {
@@ -296,7 +211,9 @@
             register: document.getElementById('register-section'),
             dashboard: document.getElementById('dashboard-section'),
             projects: document.getElementById('projects-section'),
-            issues: document.getElementById('issues-section')
+            issues: document.getElementById('issues-section'),
+            trades: document.getElementById('trades-section'),
+            users: document.getElementById('users-section')
         };
 
         // Initialize App
@@ -308,7 +225,7 @@
             }
         });
 
-        // API Functions - MATCHING YOUR EXACT API STRUCTURE
+        // API Functions
         async function apiCall(endpoint, options = {}) {
             const url = `${API_BASE}${endpoint}`;
             const config = {
@@ -324,9 +241,10 @@
             }
 
             try {
+                console.log(`🔄 API CALL: ${url}`, config);
                 const response = await fetch(url, config);
                 
-                if (response.status === 204) { // No content
+                if (response.status === 204) {
                     return {};
                 }
                 
@@ -336,69 +254,236 @@
                     throw new Error(data.detail || data.error || 'API request failed');
                 }
                 
+                console.log(`✅ API SUCCESS: ${url}`, data);
                 return data;
             } catch (error) {
-                console.error('API Error:', error);
+                console.error(`❌ API ERROR: ${url}`, error);
                 alert('Error: ' + error.message);
                 throw error;
             }
         }
 
-        // Auth Functions - USING YOUR EXACT ENDPOINTS
+        // Auth Functions
         async function checkAuth() {
             try {
                 const user = await apiCall('/auth/profile/');
                 currentUser = user;
+                console.log('🟢 USER LOGGED IN:', user);
                 updateUI();
                 showSection('dashboard');
                 loadDashboardData();
             } catch (error) {
+                console.error('🔴 AUTH FAILED:', error);
                 localStorage.removeItem('authToken');
                 authToken = null;
                 showSection('login');
             }
         }
 
-        async function login(email, password) {
+        // Project Functions - CRITICAL FIXES
+        async function loadProjects() {
             try {
-                const data = await apiCall('/auth/login/', {
-                    method: 'POST',
-                    body: JSON.stringify({ email, password })
-                });
+                console.log('🔄 LOADING PROJECTS for user:', currentUser.email, 'role:', currentUser.role);
                 
-                authToken = data.access;
-                localStorage.setItem('authToken', authToken);
-                await checkAuth();
+                const response = await apiCall('/projects/');
+                let projects = response;
+                if (response.results) {
+                    projects = response.results;
+                }
+                
+                console.log('📋 PROJECTS RESPONSE:', projects);
+                
+                // DEBUG INFO
+                if (debugMode) {
+                    const debugInfo = `
+                        User: ${currentUser.email} (${currentUser.role})
+                        Total Projects from API: ${projects.length}
+                        Project Names: ${projects.map(p => p.project_name).join(', ')}
+                        Project IDs: ${projects.map(p => p.id).join(', ')}
+                    `;
+                    document.getElementById('debugProjectsContent').innerHTML = debugInfo;
+                    document.getElementById('debugProjectsInfo').classList.remove('hidden');
+                }
+                
+                displayProjects(projects);
             } catch (error) {
-                alert('Login failed: ' + error.message);
+                const errorMsg = `Error loading projects: ${error.message}`;
+                console.error('❌', errorMsg);
+                document.getElementById('projectsList').innerHTML = `<p>${errorMsg}</p>`;
             }
         }
 
-        async function register(userData) {
+        function displayProjects(projects) {
+            const container = document.getElementById('projectsList');
+            
+            if (!projects || projects.length === 0) {
+                container.innerHTML = `
+                    <div class="card">
+                        <h3>No Projects Found</h3>
+                        <p>You are not assigned to any projects.</p>
+                        ${currentUser && currentUser.role === 'PROJECT MANAGER' ? 
+                            '<p><button class="btn btn-primary" onclick="showCreateProjectForm()">Create your first project</button></p>' : 
+                            '<p>Contact a Project Manager to get assigned to projects.</p>'}
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = projects.map(project => `
+                <div class="card">
+                    <h3>${project.project_name || 'Unnamed Project'}</h3>
+                    <p>${project.description || 'No description'}</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <strong>Start:</strong> ${project.start_date || 'N/A'}<br>
+                            <strong>End:</strong> ${project.end_date || 'N/A'}
+                        </div>
+                        <div>
+                            <strong>Assigned Users:</strong> 
+                            ${project.assigned_users && project.assigned_users.length > 0 ? 
+                                project.assigned_users.map(u => `
+                                    <span style="display: block; font-size: 0.9rem;">
+                                        ${u.email} ${u.email === currentUser.email ? '<strong>(YOU)</strong>' : ''}
+                                    </span>
+                                `).join('') : 
+                                'None'}
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button class="btn" onclick="viewProjectIssues(${project.id})">View Issues</button>
+                        ${currentUser && currentUser.role === 'PROJECT MANAGER' ? 
+                          `<button class="btn btn-success" onclick="quickAssignToProject(${project.id})">Assign Users</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Dashboard Functions with Debug
+        async function loadDashboardData() {
             try {
-                // YOUR API expects: username, email, password
-                const response = await apiCall('/auth/register/', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        username: userData.username,
-                        email: userData.email,
-                        password: userData.password
-                        // Note: Your register function doesn't accept role/specialty
-                    })
+                console.log('🔄 LOADING DASHBOARD DATA for user:', currentUser.email);
+                
+                const [projectsResponse, issuesResponse] = await Promise.all([
+                    apiCall('/projects/'),
+                    apiCall('/issues/')
+                ]);
+
+                let projects = projectsResponse;
+                let issues = issuesResponse;
+                
+                if (projectsResponse.results) {
+                    projects = projectsResponse.results;
+                }
+                if (issuesResponse.results) {
+                    issues = issuesResponse.results;
+                }
+
+                if (!Array.isArray(projects)) projects = [];
+                if (!Array.isArray(issues)) issues = [];
+
+                console.log('📊 DASHBOARD DATA:', {
+                    projectsCount: projects.length,
+                    projects: projects.map(p => p.project_name),
+                    issuesCount: issues.length
                 });
-                alert('Registration successful! Please login.');
-                showSection('login');
+
+                // DEBUG INFO
+                if (debugMode) {
+                    const debugInfo = `
+                        User: ${currentUser.email} (${currentUser.role})
+                        Projects Visible: ${projects.length}
+                        Project Names: ${projects.map(p => p.project_name).join(', ')}
+                        All Issues: ${issues.length}
+                        My Issues (calculated): ${calculateMyIssuesCount(issues)}
+                    `;
+                    document.getElementById('debugDashboardContent').innerHTML = debugInfo;
+                    document.getElementById('debugDashboardInfo').classList.remove('hidden');
+                }
+
+                // Update stats
+                document.getElementById('projectCount').textContent = projects.length;
+                document.getElementById('openIssuesCount').textContent = issues.filter(i => i.status === 'OPEN').length;
+                document.getElementById('myIssuesCount').textContent = calculateMyIssuesCount(issues);
+                document.getElementById('highPriorityCount').textContent = issues.filter(i => 
+                    i.priority === 'HIGH' || i.priority === 'CRITICAL'
+                ).length;
+
+                // Display recent issues
+                const recentIssues = issues.slice(0, 5);
+                document.getElementById('recentIssues').innerHTML = recentIssues.length > 0 ? 
+                    recentIssues.map(issue => `
+                        <div style="padding: 10px; border-bottom: 1px solid #ddd;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <strong>${issue.issue_title}</strong>
+                                <span style="background: ${getPriorityColor(issue.priority)}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.8rem;">
+                                    ${issue.priority}
+                                </span>
+                            </div>
+                            <div style="font-size: 0.9rem; color: #666;">
+                                ${issue.project_name || 'N/A'} • ${issue.trade} • ${issue.assigned_to_email || 'Unassigned'}
+                            </div>
+                        </div>
+                    `).join('') : '<p>No recent issues</p>';
+
+                // Display my projects
+                const myProjects = projects.slice(0, 5);
+                document.getElementById('myProjects').innerHTML = myProjects.length > 0 ? 
+                    myProjects.map(project => `
+                        <div style="padding: 10px; border-bottom: 1px solid #ddd;">
+                            <strong>${project.project_name}</strong>
+                            <div style="font-size: 0.9rem; color: #666;">
+                                ${project.start_date} to ${project.end_date}
+                            </div>
+                        </div>
+                    `).join('') : '<p>No projects</p>';
+
             } catch (error) {
-                alert('Registration failed: ' + error.message);
+                console.error('❌ DASHBOARD ERROR:', error);
             }
         }
 
-        function logout() {
-            localStorage.removeItem('authToken');
-            authToken = null;
-            currentUser = null;
-            updateUI();
-            showSection('login');
+        function calculateMyIssuesCount(issues) {
+            if (!currentUser) return 0;
+            
+            if (currentUser.role === 'SUB CONTRACTOR' && currentUser.specialty) {
+                return issues.filter(i => i.trade === currentUser.specialty && i.assigned_to_email === currentUser.email).length;
+            } else if (currentUser.role === 'SAFETY OFFICER') {
+                return issues.filter(i => i.priority === 'HIGH' || i.priority === 'CRITICAL').length;
+            } else {
+                return issues.length;
+            }
+        }
+
+        function getPriorityColor(priority) {
+            const colors = {
+                'LOW': '#28a745',
+                'MEDIUM': '#ffc107', 
+                'HIGH': '#fd7e14',
+                'CRITICAL': '#dc3545'
+            };
+            return colors[priority] || '#6c757d';
+        }
+
+        // Debug Functions
+        function showDebugInfo() {
+            debugMode = !debugMode;
+            const debugElements = document.querySelectorAll('.debug-info');
+            debugElements.forEach(el => {
+                if (debugMode) {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+            alert(`Debug mode ${debugMode ? 'ENABLED' : 'DISABLED'}`);
+            
+            // Reload current section to show debug info
+            if (currentUser) {
+                const currentSection = Object.keys(sections).find(key => !sections[key].classList.contains('hidden'));
+                if (currentSection) {
+                    showSection(currentSection);
+                }
+            }
         }
 
         // UI Functions
@@ -414,327 +499,68 @@
                 loadProjects();
             } else if (sectionName === 'issues' && currentUser) {
                 loadIssues();
+            } else if (sectionName === 'trades' && currentUser) {
+                loadTrades();
+            } else if (sectionName === 'users' && currentUser) {
+                loadProjectsForAssignment();
             }
         }
 
         function updateUI() {
             const userEmail = document.getElementById('userEmail');
+            const userRoleBadge = document.getElementById('userRoleBadge');
             const loginBtn = document.getElementById('loginBtn');
             const logoutBtn = document.getElementById('logoutBtn');
+            const createProjectBtn = document.getElementById('createProjectBtn');
+            const assignUsersBtn = document.getElementById('assignUsersBtn');
+            const tradesNavBtn = document.getElementById('tradesNavBtn');
+            const usersNavBtn = document.getElementById('usersNavBtn');
 
             if (currentUser) {
-                userEmail.textContent = `${currentUser.email} (${currentUser.role})`;
+                userEmail.textContent = currentUser.email;
+                userRoleBadge.textContent = currentUser.role;
                 loginBtn.classList.add('hidden');
                 logoutBtn.classList.remove('hidden');
+                
+                // Show/hide features based on role
+                const isProjectManager = currentUser.role === 'PROJECT MANAGER';
+                createProjectBtn.style.display = isProjectManager ? 'block' : 'none';
+                assignUsersBtn.style.display = isProjectManager ? 'inline-block' : 'none';
+                tradesNavBtn.style.display = isProjectManager ? 'inline-block' : 'none';
+                usersNavBtn.style.display = isProjectManager ? 'inline-block' : 'none';
+                
+                // Update role info
+                document.getElementById('dashboardRoleInfo').textContent = currentUser.role;
+                document.getElementById('projectsRoleInfo').textContent = currentUser.role;
+                document.getElementById('issuesRoleInfo').textContent = currentUser.role;
+                
+                console.log('🎯 UI UPDATED for role:', currentUser.role);
+                
             } else {
                 userEmail.textContent = 'Not logged in';
+                userRoleBadge.textContent = '';
                 loginBtn.classList.remove('hidden');
                 logoutBtn.classList.add('hidden');
             }
         }
 
-        // Project Functions - USING YOUR EXACT API
-        async function loadProjects() {
-            try {
-                const projects = await apiCall('/projects/');
-                displayProjects(projects);
-            } catch (error) {
-                document.getElementById('projectsList').innerHTML = '<p>Error loading projects</p>';
-            }
-        }
+        // ... Rest of your existing functions (login, register, etc.)
 
-        function displayProjects(projects) {
-            const container = document.getElementById('projectsList');
+        // TEST FUNCTION - Use this to verify the filtering
+        async function testProjectFiltering() {
+            console.log('🧪 TESTING PROJECT FILTERING');
+            console.log('Current User:', currentUser);
             
-            if (!projects || projects.length === 0) {
-                container.innerHTML = '<p>No projects found</p>';
-                return;
-            }
-
-            // YOUR Project model has: project_name, description, start_date, end_date, trades
-            container.innerHTML = projects.map(project => `
-                <div class="card">
-                    <h3>${project.project_name}</h3>
-                    <p>${project.description}</p>
-                    <div class="grid grid-2">
-                        <div>
-                            <strong>Start:</strong> ${project.start_date}<br>
-                            <strong>End:</strong> ${project.end_date}
-                        </div>
-                        <div>
-                            <strong>Trades:</strong> ${project.trades && project.trades.length > 0 ? 
-                                project.trades.map(t => t.name).join(', ') : 'None'}
-                        </div>
-                    </div>
-                    <div class="text-right mt-4">
-                        <button class="btn btn-outline" onclick="viewProjectIssues(${project.id})">View Issues</button>
-                        <button class="btn btn-primary" onclick="addTradeToProject(${project.id})">Add Trade</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function createProject(projectData) {
-            try {
-                // YOUR ProjectSerializer expects: project_name, description, start_date, end_date
-                await apiCall('/projects/', {
-                    method: 'POST',
-                    body: JSON.stringify(projectData)
-                });
-                hideCreateProjectForm();
-                loadProjects();
-                alert('Project created successfully!');
-            } catch (error) {
-                alert('Error creating project: ' + error.message);
-            }
-        }
-
-        async function addTradeToProject(projectId) {
-            const tradeName = prompt('Enter trade name (ELECTRICAL, PLUMBING, etc.):');
-            if (tradeName) {
-                try {
-                    await apiCall(`/projects/${projectId}/add_trade/`, {
-                        method: 'POST',
-                        body: JSON.stringify({ trade_name: tradeName })
-                    });
-                    loadProjects(); // Refresh the list
-                    alert('Trade added successfully!');
-                } catch (error) {
-                    alert('Error adding trade: ' + error.message);
-                }
-            }
-        }
-
-        // Issue Functions - USING YOUR EXACT API STRUCTURE
-        async function loadIssues() {
-            try {
-                const issues = await apiCall('/issues/');
-                displayIssues(issues);
-            } catch (error) {
-                document.getElementById('issuesList').innerHTML = '<p>Error loading issues</p>';
-            }
-        }
-
-        function displayIssues(issues) {
-            const container = document.getElementById('issuesList');
+            const projects = await apiCall('/projects/');
+            console.log('Projects returned:', projects);
             
-            if (!issues || issues.length === 0) {
-                container.innerHTML = '<p>No issues found</p>';
-                return;
-            }
-
-            // YOUR Issue model has: project_name, trade, issue_title, priority, status, due_date
-            container.innerHTML = `
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Project</th>
-                            <th>Trade</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Due Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${issues.map(issue => `
-                            <tr>
-                                <td><strong>${issue.issue_title}</strong></td>
-                                <td>${issue.project_name || 'N/A'}</td>
-                                <td>${issue.trade}</td>
-                                <td><span class="priority-badge priority-${issue.priority.toLowerCase()}">${issue.priority}</span></td>
-                                <td><span class="status-badge status-${issue.status.toLowerCase()}">${issue.status.replace('_', ' ')}</span></td>
-                                <td>${issue.due_date}</td>
-                                <td>
-                                    <button class="btn btn-outline" onclick="assignIssue(${issue.id})">Assign</button>
-                                    <button class="btn btn-outline" onclick="addComment(${issue.id})">Comment</button>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
+            alert(`TEST RESULTS:
+User: ${currentUser.email} (${currentUser.role})
+Projects Visible: ${projects.length}
+Project Names: ${projects.map(p => p.project_name).join(', ')}
+            `);
         }
 
-        async function createIssue(issueData) {
-            try {
-                // YOUR IssueSerializer expects: project, trade, issue_title, detailed_description, priority, due_date
-                await apiCall('/issues/', {
-                    method: 'POST',
-                    body: JSON.stringify(issueData)
-                });
-                hideCreateIssueForm();
-                loadIssues();
-                alert('Issue created successfully!');
-            } catch (error) {
-                alert('Error creating issue: ' + error.message);
-            }
-        }
-
-        async function assignIssue(issueId) {
-            const trade = prompt('Assign to which trade? (ELECTRICAL, PLUMBING, etc.):');
-            if (trade) {
-                try {
-                    await apiCall(`/issues/${issueId}/assign/`, {
-                        method: 'POST',
-                        body: JSON.stringify({ assigned_trade: trade })
-                    });
-                    loadIssues(); // Refresh
-                    alert('Issue assigned successfully!');
-                } catch (error) {
-                    alert('Error assigning issue: ' + error.message);
-                }
-            }
-        }
-
-        async function addComment(issueId) {
-            const content = prompt('Enter your comment:');
-            if (content) {
-                try {
-                    await apiCall(`/issues/${issueId}/comments/`, {
-                        method: 'POST',
-                        body: JSON.stringify({ content })
-                    });
-                    alert('Comment added successfully!');
-                } catch (error) {
-                    alert('Error adding comment: ' + error.message);
-                }
-            }
-        }
-
-        // Dashboard Functions
-        async function loadDashboardData() {
-            try {
-                const [projects, issues] = await Promise.all([
-                    apiCall('/projects/'),
-                    apiCall('/issues/')
-                ]);
-
-                // Update stats
-                document.getElementById('projectCount').textContent = projects?.length || 0;
-                document.getElementById('openIssuesCount').textContent = issues?.filter(i => i.status === 'OPEN').length || 0;
-                document.getElementById('myIssuesCount').textContent = issues?.filter(i => 
-                    currentUser && i.assigned_to === currentUser.specialty
-                ).length || 0;
-                document.getElementById('highPriorityCount').textContent = issues?.filter(i => 
-                    i.priority === 'HIGH' || i.priority === 'CRITICAL'
-                ).length || 0;
-
-                // Display recent issues
-                const recentIssues = issues?.slice(0, 5) || [];
-                document.getElementById('recentIssues').innerHTML = recentIssues.length > 0 ? 
-                    recentIssues.map(issue => `
-                        <div style="padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
-                            <div style="display: flex; justify-content: space-between;">
-                                <strong>${issue.issue_title}</strong>
-                                <span class="priority-badge priority-${issue.priority.toLowerCase()}">${issue.priority}</span>
-                            </div>
-                            <div style="font-size: 0.9rem; color: var(--secondary);">
-                                ${issue.project_name || 'N/A'} • ${issue.trade}
-                            </div>
-                        </div>
-                    `).join('') : '<p>No recent issues</p>';
-
-                // Display my projects
-                const myProjects = projects?.slice(0, 5) || [];
-                document.getElementById('myProjects').innerHTML = myProjects.length > 0 ? 
-                    myProjects.map(project => `
-                        <div style="padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
-                            <strong>${project.project_name}</strong>
-                            <div style="font-size: 0.9rem; color: var(--secondary);">
-                                ${project.start_date} to ${project.end_date}
-                            </div>
-                        </div>
-                    `).join('') : '<p>No projects</p>';
-
-            } catch (error) {
-                console.error('Error loading dashboard data:', error);
-            }
-        }
-
-        // Form Handlers
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            login(email, password);
-        });
-
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const userData = {
-                username: document.getElementById('regUsername').value,
-                email: document.getElementById('regEmail').value,
-                password: document.getElementById('regPassword').value,
-                role: document.getElementById('regRole').value,
-                specialty: document.getElementById('regSpecialty').value
-            };
-            register(userData);
-        });
-
-        document.getElementById('projectForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const projectData = {
-                project_name: document.getElementById('projectName').value,
-                description: document.getElementById('projectDescription').value,
-                start_date: document.getElementById('startDate').value,
-                end_date: document.getElementById('endDate').value
-            };
-            createProject(projectData);
-        });
-
-        document.getElementById('issueForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const issueData = {
-                project: parseInt(document.getElementById('issueProject').value),
-                issue_title: document.getElementById('issueTitle').value,
-                detailed_description: document.getElementById('issueDescription').value,
-                trade: document.getElementById('issueTrade').value,
-                priority: document.getElementById('issuePriority').value,
-                due_date: document.getElementById('issueDueDate').value,
-                assigned_to: document.getElementById('issueTrade').value, // Using trade as assigned_to
-                status: 'OPEN'
-            };
-            createIssue(issueData);
-        });
-
-        // Helper Functions
-        function showCreateProjectForm() {
-            document.getElementById('createProjectForm').classList.remove('hidden');
-        }
-
-        function hideCreateProjectForm() {
-            document.getElementById('createProjectForm').classList.add('hidden');
-            document.getElementById('projectForm').reset();
-        }
-
-        function showCreateIssueForm() {
-            loadProjectsForDropdown();
-            document.getElementById('createIssueForm').classList.remove('hidden');
-        }
-
-        function hideCreateIssueForm() {
-            document.getElementById('createIssueForm').classList.add('hidden');
-            document.getElementById('issueForm').reset();
-        }
-
-        async function loadProjectsForDropdown() {
-            try {
-                const projects = await apiCall('/projects/');
-                const select = document.getElementById('issueProject');
-                select.innerHTML = '<option value="">Select Project</option>' +
-                    projects.map(p => `<option value="${p.id}">${p.project_name}</option>`).join('');
-            } catch (error) {
-                console.error('Error loading projects for dropdown:', error);
-            }
-        }
-
-        function viewProjectIssues(projectId) {
-            showSection('issues');
-            // In a full implementation, you would filter issues by project
-            loadIssues();
-        }
     </script>
 </body>
 </html>

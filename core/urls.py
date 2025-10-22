@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import ProjectViewSet, TradeViewSet, IssueViewSet, CommentViewSet, AttachmentViewSet, register_user, project_issues, add_trade_to_project, assign_issue, upload_attachment, issue_comments, user_profile
+from .views import ProjectViewSet, TradeViewSet, IssueViewSet, CommentViewSet, AttachmentViewSet, register_user, project_issues, add_trade_to_project, assign_issue, upload_attachment, issue_comments, user_profile,test_assigned_projects
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .views import dashboard
@@ -23,5 +23,6 @@ urlpatterns = [
     path('api/issues/<int:issue_id>/assign/', assign_issue, name='assign-issue'),
     path('api/issues/<int:issue_id>/upload/', upload_attachment, name='upload-attachment'),
     path('api/issues/<int:issue_id>/comments/', issue_comments, name='issue-comments'),
+    path('api/test-assigned-projects/', test_assigned_projects, name='test-assigned-projects'),
     path('api/', include(router.urls)),
 ]

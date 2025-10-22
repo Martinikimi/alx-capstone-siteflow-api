@@ -13,16 +13,12 @@ class TradeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ProjectSerializer(serializers.ModelSerializer):
-    trades = TradeSerializer(many=True, read_only=True)
+    trades = serializers.PrimaryKeyRelatedField(many=True, queryset=Trade.objects.all())
+    assigned_users = serializers.PrimaryKeyRelatedField(many=True, queryset=CustomUser.objects.all(), required=False)
     
     class Meta:
         model = Project
-        fields = ['id', 'project_name', 'description', 'start_date', 'end_date', 'trades']
-        
-    def validate(self, data):
-        if data['start_date'] > data['end_date']:
-            raise serializers.ValidationError("End date must be after start date")
-        return data
+        fields = ['id', 'project_name', 'description', 'start_date', 'end_date', 'trades', 'assigned_users']
 
 class IssueSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(source='project.project_name', read_only=True)

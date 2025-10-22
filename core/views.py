@@ -35,6 +35,8 @@ def register_user(request):
             username=data['username'],
             email=data['email'],
             password=data['password'],
+            role=data.get('role', 'ADMIN'),
+            specialty=data.get('specialty')  
         )
         user.save()
         
@@ -77,15 +79,20 @@ class ProjectViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """FILTER GLASSES for Projects"""
-        user = self.request.user  # "Who is asking?"
+        user = self.request.user
+        print(f"DEBUG: User {user.email} with role {user.role} is accessing projects")  
         
-        # PROJECT MANAGER: "Show me ALL classrooms"
+        # ADMIN & PROJECT MANAGER: See all projects
         if user.role in ['ADMIN', 'PROJECT MANAGER']:
-            return Project.objects.all()
+            projects = Project.objects.all()
+            print(f"DEBUG: Showing ALL {projects.count()} projects to {user.role}")
         
         # EVERYONE ELSE: "Show me only MY classrooms"
         else:
-            return user.assigned_projects.all()
+            projects = user.assigned_projects.all()
+            print(f"DEBUG: Showing {projects.count()} assigned projects to {user.role}")
+            
+        return projects
     
 class TradeViewSet(viewsets.ModelViewSet):
     queryset = Trade.objects.all()
@@ -420,3 +427,28 @@ def upload_attachment(request, issue_id):
             {"error": f"Failed to upload file: {str(e)}"}, 
             status=status.HTTP_400_BAD_REQUEST
         )
+        
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def test_assigned_projects(request):
+    """
+    Simple endpoint to test project assignment logic
+    GET /api/test-assigned-projects/
+    """
+    user = request.user
+    all_projects = Project.objects.all()
+    assigned_projects = user.assigned_projects.all()
+    
+    return Response({
+        'user_info': {
+            'id': user.id,
+            'email': user.email,
+            'role': user.role,
+            'specialty': user.specialty
+        },
+        'project_access': {
+            'total_projects_in_system': all_projects.count(),
+            'projects_assigned_to_me': assigned_projects.count(),
+            'assigned_projects': ProjectSerializer(assigned_projects, many=True).data
+        }
+    })
