@@ -87,12 +87,51 @@ class ProjectViewSet(viewsets.ModelViewSet):
             projects = Project.objects.all()
             print(f"DEBUG: Showing ALL {projects.count()} projects to {user.role}")
         
-        # EVERYONE ELSE: "Show me only MY classrooms"
+        # EVERYONE ELSE: "Show me only assigned projects/issues"
         else:
             projects = user.assigned_projects.all()
             print(f"DEBUG: Showing {projects.count()} assigned projects to {user.role}")
             
         return projects
+    
+    def create(self, request, *args, **kwargs):
+        """Check permissions before allowing project creation"""
+        user = request.user
+        
+        # Only allow ADMIN and PROJECT MANAGER to create projects
+        if user.role not in ['ADMIN', 'PROJECT MANAGER']:
+            return Response(
+                {'error': 'Only project managers or admin can create projects'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # If user has permission, proceed with normal creation
+        return super().create(request, *args, **kwargs)
+    
+    # Prevent unauthorized updates/deletes
+    def update(self, request, *args, **kwargs):
+        """Check permissions before allowing project updates"""
+        user = request.user
+        
+        if user.role not in ['ADMIN', 'PROJECT MANAGER']:
+            return Response(
+                {'error': 'Only project managers or admin can update projects'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        return super().update(request, *args, **kwargs)
+    
+    def destroy(self, request, *args, **kwargs):
+        """Check permissions before allowing project deletion"""
+        user = request.user
+        
+        if user.role not in ['ADMIN', 'PROJECT MANAGER']:
+            return Response(
+                {'error': 'Only project managers or admin can delete projects'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        return super().destroy(request, *args, **kwargs)
     
 class TradeViewSet(viewsets.ModelViewSet):
     queryset = Trade.objects.all()
