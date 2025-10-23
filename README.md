@@ -144,6 +144,7 @@ Endpoint	Method	Description
 /api/auth/register/	POST	Register a new user
 /api/auth/login/	POST	Obtain JWT access and refresh tokens
 /api/auth/profile/	GET	Retrieve logged-in user profile
+
 🏗️ Projects & Trades
 Endpoint	Method	Description
 /api/projects/	GET	List all projects for authenticated user
@@ -152,6 +153,7 @@ Endpoint	Method	Description
 /api/trades/	GET/POST	Manage trades (Admin/PM only)
 /api/test-assigned-projects/	GET	Returns assigned projects per user
 /dashboard/	GET	Project overview dashboard
+
 🧱 Issues Management
 Endpoint	Method	Description
 /api/issues/	GET/POST	List or create issues
@@ -164,6 +166,7 @@ Endpoint	Method	Description
 Endpoint	Method	Description
 /api/comments/	GET/POST	Manage comments
 /api/attachments/	GET/POST	Manage attachments
+
 🔐 Authentication & Authorization
 
 JWT-based secure login system
