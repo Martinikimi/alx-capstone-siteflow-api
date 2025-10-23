@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=siteflow_db
+      - POSTGRES_USER=siteflow_user
+      - POSTGRES_PASSWORD=siteflow_pass
+    ports:
+      - "5432:5432"
+
+  # Django Application
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DEBUG=True
+      # MATCH THESE TO YOUR settings.py VARIABLES:
+      - DB_NAME=siteflow_db
+      - DB_USER=siteflow_user
+      - DB_PASSWORD=siteflow_pass
+      - DB_HOST=db
+      - DB_PORT=5432
+
+volumes:
+  postgres_data:
